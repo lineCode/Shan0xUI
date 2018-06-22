@@ -6,6 +6,7 @@
 * Base window
 * Label
 * Material button
+* Panel
 * TextBox
 * CheckBox
 ---
