@@ -242,12 +242,16 @@ void Shan0xUI::Window::ProcessCheckBox_LButtonUp()
 						SetCursor(LoadCursor(NULL, IDC_HAND));
 						(*i)->setCheckBoxState_Checked(false);
 						(*i)->setCheckBoxState_BeginPressed(false);
+						if ((*i)->Connect.onStateChanged != nullptr)
+							(*i)->Connect.onStateChanged(false);
 						SendMessage(GetHWND(), WM_PAINT, 0, 0);
 					}
 					else
 					{
 						SetCursor(LoadCursor(NULL, IDC_HAND));
 						(*i)->setCheckBoxState_Checked(true);
+						if ((*i)->Connect.onStateChanged != nullptr)
+							(*i)->Connect.onStateChanged(true);
 						SendMessage(GetHWND(), WM_PAINT, 0, 0);
 					}
 				}
@@ -302,11 +306,6 @@ void Shan0xUI::Window::ProcessCheckBox_MouseLeave()
 			(*i)->setCheckBoxState_Hovered(false);
 		}
 	SendMessage(GetHWND(), WM_PAINT, 0, 0);
-}
-
-// Метод обработки state-changed.
-void Shan0xUI::Window::ProcessCheckBox_StateChanged()
-{
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -441,7 +440,7 @@ void Shan0xUI::Window::DrawLabelObjs()
 		this->_pColorBrush->SetColor((*i)->GetColor());
 
 		this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat,
-			D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+			D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 
 		this->_pTextFormat->Release();
 	}
@@ -469,29 +468,29 @@ void Shan0xUI::Window::DrawMaterialButtonObjs()
 		{
 			(*i)->setButtonState_Hovered(false);
 			this->_pColorBrush->SetColor((*i)->GetBackgroundColorOnClick());
-			this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+			this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 
 			this->_pColorBrush->SetColor((*i)->GetForegroundColorOnClick());
 			this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat,
-				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 		}
 		else if ((*i)->getButtonState_Hovered())
 		{
 			this->_pColorBrush->SetColor((*i)->GetBackgroundColorOnHover());
-			this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+			this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 		
 			this->_pColorBrush->SetColor((*i)->GetForegroundColorOnHover());
 			this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat,
-				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 		}
 		else
 		{
 			this->_pColorBrush->SetColor((*i)->GetBackgroundColor());
-			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush, 1.8f);
+			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush, 1.8f);
 		
 			this->_pColorBrush->SetColor((*i)->GetForegroundColor());
 			this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat,
-				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+				D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 		}
 		
 		this->_pTextFormat->Release();
@@ -504,7 +503,7 @@ void Shan0xUI::Window::DrawPanelObjs()
 	for (auto i = this->panelObjs.begin(); i != this->panelObjs.end(); i++)
 	{
 		this->_pColorBrush->SetColor((*i)->GetBackgroundColor());
-		this->_pRT->FillRectangle(D2D1::RectF(static_cast<FLOAT>((*i)->GetX()), static_cast<FLOAT>((*i)->GetY()), static_cast<FLOAT>((*i)->GetWidth()), static_cast<FLOAT>((*i)->GetHeight())), this->_pColorBrush);
+		this->_pRT->FillRectangle(D2D1::RectF(static_cast<FLOAT>((*i)->GetX()), static_cast<FLOAT>((*i)->GetY()), static_cast<FLOAT>((*i)->GetWidth() + ((*i)->GetX() / 2) * 2), static_cast<FLOAT>((*i)->GetHeight() + ((*i)->GetY() / 2) * 2)), this->_pColorBrush);
 	}
 }
 
@@ -527,27 +526,27 @@ void Shan0xUI::Window::DrawTextBoxObjs()
 		this->_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
 		this->_pColorBrush->SetColor((*i)->GetBackgroundColor());
-		this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush);
+		this->_pRT->FillRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 		if ((*i)->getTextBoxState_BeginPressed())
 		{
 			this->_pColorBrush->SetColor((*i)->GetBorderColorOnClick());
-			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush, 1.8f);
+			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush, 1.8f);
 		}
 		else if ((*i)->getTextBoxState_Hovered())
 		{
 			this->_pColorBrush->SetColor((*i)->GetBorderColorOnHover());
-			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush, 1.8f);
+			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush, 1.8f);
 		}
 		else
 		{
 			this->_pColorBrush->SetColor((*i)->GetBorderColor());
-			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()), this->_pColorBrush, 1.8f);
+			this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush, 1.8f);
 		}
 
 		this->_pColorBrush->SetColor((*i)->GetForegroundColor());
 		this->_pRT->DrawText(
 			(*i)->GetText(), (*i)->GetLen(), this->_pTextFormat,
-			D2D1::RectF((*i)->GetX() + 10, (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight()),
+			D2D1::RectF((*i)->GetX() + 10, (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2),
 			this->_pColorBrush);
 
 		this->_pTextFormat->Release();
@@ -574,31 +573,36 @@ void Shan0xUI::Window::DrawCheckBoxObjs()
 		this->_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
 		this->_pColorBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-		this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat, D2D1::RectF((*i)->GetX() + 20, (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
+		this->_pRT->DrawText((*i)->GetText(), (*i)->GetLen(), this->_pTextFormat, D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetX() + 25 + (*i)->GetWidth(), (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pColorBrush);
 
 		// debug
-		//this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth(), (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pBlackBrush, 2);
+		//this->_pRT->DrawRectangle(D2D1::RectF((*i)->GetX(), (*i)->GetY(), (*i)->GetWidth() + ((*i)->GetX() / 2) * 2, (*i)->GetHeight() + ((*i)->GetY() / 2) * 2), this->_pBlackBrush, 2);
 		
 		if ((*i)->getCheckBoxState_BeginPressed())
 		{
 			this->_pColorBrush->SetColor((*i)->GetBackgroundColorOnClick());
-			this->_pRT->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY(), 27, ((*i)->GetY() / 2) * 2 + (*i)->GetHeight()), 2, 2), this->_pColorBrush);
+			this->_pRT->FillRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY() + ((*i)->GetHeight() - 18) / 2, (*i)->GetX() + 18, (*i)->GetY() + ((*i)->GetHeight() + 18) / 2), 2, 2), this->_pColorBrush);
 
 			// Process anim..
 			this->_pColorBrush->SetColor(D2D1::ColorF(D2D1::ColorF::White));
-			this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 2, (*i)->GetY() + ((*i)->GetHeight() / 2)), D2D1::Point2F((*i)->GetX() + 7, (*i)->GetY() + ((*i)->GetHeight() / 2) + 5), this->_pColorBrush, 2.0f);
-			this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 7, (*i)->GetY() + ((*i)->GetHeight() / 2) + 6), D2D1::Point2F((*i)->GetX() + 15, (*i)->GetY() + 4.5f), this->_pColorBrush, 2.0f);
+			
+			this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 2, ((*i)->GetY() + (18 / 2)) + ((*i)->GetHeight() - 18) / 2), D2D1::Point2F(((*i)->GetX() + 7), ((*i)->GetY() + (18 / 2) + 5) + ((*i)->GetHeight() - 18) / 2), this->_pColorBrush, 2.0f);
+			this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 7, ((*i)->GetY() + (18 / 2) + 6) + ((*i)->GetHeight() - 18) / 2), D2D1::Point2F(((*i)->GetX() + 15), ((*i)->GetY() + 4.5f) + ((*i)->GetHeight() - 18) / 2), this->_pColorBrush, 2.0f);
+
+			//this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 2, (*i)->GetY() + (18 / 2)), D2D1::Point2F((*i)->GetX() + 7 , (*i)->GetY() + (18 / 2) + 5), this->_pColorBrush, 2.0f);
+			//this->_pRT->DrawLine(D2D1::Point2F((*i)->GetX() + 7, (*i)->GetY() + (18 / 2) + 6), D2D1::Point2F((*i)->GetX() + 15, (*i)->GetY() + 4.5f), this->_pColorBrush, 2.0f);
+
 		}
 		else if ((*i)->getCheckBoxState_Hovered())
 		{
 			// Process anum..
 			this->_pColorBrush->SetColor((*i)->GetBorderColorOnHover());
-			this->_pRT->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY(), 27, ((*i)->GetY() / 2) * 2 + (*i)->GetHeight()), 1.5, 1.5), this->_pColorBrush, 1.8);
+			this->_pRT->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY() + ((*i)->GetHeight() - 18) / 2, (*i)->GetX() + 18, (*i)->GetY() + ((*i)->GetHeight() + 18) / 2), 1.5, 1.5), this->_pColorBrush, 1.8);
 		}
 		else
 		{
 			this->_pColorBrush->SetColor((*i)->GetBorderColor());
-			this->_pRT->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY(), 27, ((*i)->GetY() / 2 ) * 2 + (*i)->GetHeight()), 1.5, 1.5), this->_pColorBrush, 1.8);
+			this->_pRT->DrawRoundedRectangle(D2D1::RoundedRect(D2D1::RectF((*i)->GetX(), (*i)->GetY() + ((*i)->GetHeight() - 18) / 2, (*i)->GetX() + 18, (*i)->GetY() + ((*i)->GetHeight() + 18) / 2), 1.5, 1.5), this->_pColorBrush, 1.8);
 		}
 
 		this->_pTextFormat->Release();
@@ -627,6 +631,15 @@ void Shan0xUI::Window::OnWindowRender()
 		DrawMaterialButtonObjs();
 
 	this->_pRT->EndDraw();
+}
+
+// Метод устанавливает окно поверх всех окон.
+void Shan0xUI::Window::SetWinOnTop(bool onTop)
+{
+	if (onTop)
+		SetWindowPos(GetHWND(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	else
+		SetWindowPos(GetHWND(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 // Метод устанавливает цвет окна(клиентской области)
@@ -1187,6 +1200,9 @@ Shan0xUI::CheckBox::CheckBox(const wchar_t * text, const int & x, const int & y,
 
 	this->setCheckBoxState_Hovered(false);
 	this->setCheckBoxState_BeginPressed(false);
+	this->setCheckBoxState_Checked(false);
+
+	this->Connect.onStateChanged = nullptr;
 }
 
 // Деструктор по умолчанию.

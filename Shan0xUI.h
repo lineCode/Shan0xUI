@@ -206,7 +206,7 @@ public:
 		void ProcessCheckBox_MouseLeave();
 
 		// Метод обработки state-changed.
-		void ProcessCheckBox_StateChanged();
+		//void ProcessCheckBox_StateChanged();
 
 		//////////////////////////////////////////////
 	public:
@@ -223,6 +223,9 @@ public:
 
 		// Метод возвращает дескриптор окна.
 		HWND GetHWND() { return this->_hwnd; }
+
+		// Метод устанавливает окно поверх всех окон.
+		void SetWinOnTop(bool onTop = true);
 
 		// Метод устанавливает цвет объекта
 		void SetBackgroundColor(BaseColor Color);
@@ -326,10 +329,10 @@ public:
 		bool IsCursorOnButton(HWND hwnd, float dpiX, float dpiY)
 		{
 			RECT rc{};
-			rc.left = this->GetX() * dpiX + 2;
+			rc.left = this->GetX() * dpiX;
 			rc.top = this->GetY() * dpiY + 2;
-			rc.right = this->GetWidth() * dpiX - 2;
-			rc.bottom = this->GetHeight() * dpiY - 2;
+			rc.right = this->GetWidth() * dpiX - 2 + (this->GetX() / 2) * 2;
+			rc.bottom = this->GetHeight() * dpiY - 2 + (this->GetY() / 2) * 2;
 			POINT pt{};
 			GetCursorPos(&pt);
 			ScreenToClient(hwnd, &pt);
@@ -473,8 +476,8 @@ public:
 			RECT rc{};
 			rc.left = this->GetX() * dpiX + 2;
 			rc.top = this->GetY() * dpiY + 2;
-			rc.right = this->GetWidth() * dpiX - 2;
-			rc.bottom = this->GetHeight() * dpiY - 2;
+			rc.right = this->GetWidth() * dpiX - 2 + (this->GetX() / 2) * 2;
+			rc.bottom = this->GetHeight() * dpiY - 2 + (this->GetY() / 2) * 2;
 			POINT pt{};
 			GetCursorPos(&pt);
 			ScreenToClient(hwnd, &pt);
@@ -586,7 +589,7 @@ public:
 			RECT rc{};
 			rc.left = this->GetX() * dpiX;
 			rc.top = this->GetY() * dpiY;
-			rc.right = this->GetWidth() * dpiX;
+			rc.right = this->GetWidth() * dpiX + (this->GetX() / 2) * 2;
 			rc.bottom = this->GetHeight() * dpiY + (this->GetY() / 2) * 2;
 			POINT pt{};
 			GetCursorPos(&pt);
@@ -619,7 +622,15 @@ public:
 		ParamColor GetBorderColor() { return this->_bbColor; }
 
 		// Конструктор по умолчанию.
-		CheckBox(const wchar_t* text = L"CheckBox", const int& x = 10, const int& y = 10, const int& width = 125, const int& height = 25);
+		CheckBox(const wchar_t* text = L"CheckBox", const int& x = 10, const int& y = 10, const int& width = 125, const int& height = 18);
+
+		// Метод задает MouseEvent; c.м MouseEvents
+		struct
+		{
+		public:
+			void(*onStateChanged)(bool checkBoxState);
+
+		} Connect;
 
 		// Деструктор по умолчанию.
 		~CheckBox();
